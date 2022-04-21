@@ -8,7 +8,7 @@ import org.apereo.cas.authentication.bypass.AuthenticationMultifactorAuthenticat
 import org.apereo.cas.authentication.bypass.CredentialMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.HttpRequestMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.PrincipalMultifactorAuthenticationProviderBypassEvaluator;
-import org.apereo.cas.authentication.bypass.RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator;
+import org.apereo.cas.authentication.bypass.RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.configuration.model.support.mfa.MultifactorAuthenticationProviderBypassProperties;
 import org.apereo.cas.services.RegisteredServiceMultifactorPolicy;
 import org.apereo.cas.util.CollectionUtils;
@@ -223,7 +223,7 @@ public class MultifactorAuthenticationProviderBypassTests {
         val authentication = MultifactorAuthenticationTestUtils.getAuthentication(principal);
 
         val provider = TestMultifactorAuthenticationProvider.registerProviderIntoApplicationContext(applicationContext);
-        val bypass = new RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator(provider.getId());
+        val bypass = new RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator(provider.getId());
         val service = MultifactorAuthenticationTestUtils.getRegisteredService();
 
         val policy = mock(RegisteredServiceMultifactorPolicy.class);
@@ -247,7 +247,7 @@ public class MultifactorAuthenticationProviderBypassTests {
         val authentication = MultifactorAuthenticationTestUtils.getAuthentication(principal);
 
         val provider = TestMultifactorAuthenticationProvider.registerProviderIntoApplicationContext(applicationContext);
-        val bypass = new RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator(provider.getId());
+        val bypass = new RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator(provider.getId());
         val service = MultifactorAuthenticationTestUtils.getRegisteredService();
         assertTrue(bypass.shouldMultifactorAuthenticationProviderExecute(authentication, service, provider, request));
     }

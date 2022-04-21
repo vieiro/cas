@@ -1,5 +1,6 @@
 package org.apereo.cas.authentication.bypass;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apereo.cas.authentication.Authentication;
 import org.apereo.cas.authentication.MultifactorAuthenticationProvider;
 import org.apereo.cas.services.RegisteredService;
@@ -11,9 +12,12 @@ import lombok.val;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * Multifactor Bypass based on Principal Attributes.
+ * Multifactor Bypass based on both - the enabled flag and Principal Attributes.
+ *
+ * If principal attributes are not set, it simply considers the enabled flag alone.
  *
  * @author Travis Schmidt
+ * @author Dmitriy Kopylenko
  * @since 6.0
  */
 @Slf4j
@@ -39,6 +43,10 @@ public class RegisteredServicePrincipalAttributeMultifactorAuthenticationProvide
         val shouldProceed = mfaPolicy == null || !mfaPolicy.isBypassEnabled();
 
         if (!shouldProceed) {
+            if(StringUtils.isBlank(mfaPolicy.getBypassPrincipalAttributeName()) || StringUtils.isBlank(mfaPolicy.getBypassPrincipalAttributeValue())) {
+                return false;
+            }
+
             val principal = resolvePrincipal(authentication.getPrincipal());
             val bypass = locateMatchingAttributeValue(mfaPolicy.getBypassPrincipalAttributeName(),
                 mfaPolicy.getBypassPrincipalAttributeValue(),

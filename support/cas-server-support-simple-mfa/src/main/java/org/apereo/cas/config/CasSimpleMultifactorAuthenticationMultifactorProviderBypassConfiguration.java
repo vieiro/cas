@@ -7,7 +7,6 @@ import org.apereo.cas.authentication.bypass.GroovyMultifactorAuthenticationProvi
 import org.apereo.cas.authentication.bypass.HttpRequestMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.MultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.PrincipalMultifactorAuthenticationProviderBypassEvaluator;
-import org.apereo.cas.authentication.bypass.RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.RestMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.configuration.CasConfigurationProperties;
@@ -132,14 +131,6 @@ public class CasSimpleMultifactorAuthenticationMultifactorProviderBypassConfigur
         val simple = casProperties.getAuthn().getMfa().getSimple();
         val props = simple.getBypass();
         return new CredentialMultifactorAuthenticationProviderBypassEvaluator(props, simple.getId());
-    }
-
-    @Bean
-    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-    @ConditionalOnMissingBean(name = "casSimpleMultifactorRegisteredServiceMultifactorAuthenticationProviderBypass")
-    public MultifactorAuthenticationProviderBypassEvaluator casSimpleMultifactorRegisteredServiceMultifactorAuthenticationProviderBypass(final CasConfigurationProperties casProperties) {
-        val simple = casProperties.getAuthn().getMfa().getSimple();
-        return new RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator(simple.getId());
     }
 
     @Bean

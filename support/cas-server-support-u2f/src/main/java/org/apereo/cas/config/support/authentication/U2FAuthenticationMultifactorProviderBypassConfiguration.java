@@ -7,7 +7,6 @@ import org.apereo.cas.authentication.bypass.GroovyMultifactorAuthenticationProvi
 import org.apereo.cas.authentication.bypass.HttpRequestMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.MultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.PrincipalMultifactorAuthenticationProviderBypassEvaluator;
-import org.apereo.cas.authentication.bypass.RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.RestMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.configuration.CasConfigurationProperties;
@@ -42,9 +41,6 @@ public class U2FAuthenticationMultifactorProviderBypassConfiguration {
         final CasConfigurationProperties casProperties,
         @Qualifier("u2fPrincipalMultifactorAuthenticationProviderBypass")
         final MultifactorAuthenticationProviderBypassEvaluator u2fPrincipalMultifactorAuthenticationProviderBypass,
-        @Qualifier("u2fRegisteredServiceMultifactorAuthenticationProviderBypass")
-        final MultifactorAuthenticationProviderBypassEvaluator u2fRegisteredServiceMultifactorAuthenticationProviderBypass,
-        @Qualifier("u2fRegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator")
         final MultifactorAuthenticationProviderBypassEvaluator u2fRegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator,
         @Qualifier("u2fAuthenticationMultifactorAuthenticationProviderBypass")
         final MultifactorAuthenticationProviderBypassEvaluator u2fAuthenticationMultifactorAuthenticationProviderBypass,
@@ -61,7 +57,6 @@ public class U2FAuthenticationMultifactorProviderBypassConfiguration {
         if (StringUtils.isNotBlank(props.getPrincipalAttributeName())) {
             bypass.addMultifactorAuthenticationProviderBypassEvaluator(u2fPrincipalMultifactorAuthenticationProviderBypass);
         }
-        bypass.addMultifactorAuthenticationProviderBypassEvaluator(u2fRegisteredServiceMultifactorAuthenticationProviderBypass);
         bypass.addMultifactorAuthenticationProviderBypassEvaluator(u2fRegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator);
         if (StringUtils.isNotBlank(props.getAuthenticationAttributeName()) || StringUtils.isNotBlank(props.getAuthenticationHandlerName())
             || StringUtils.isNotBlank(props.getAuthenticationMethodName())) {
@@ -125,14 +120,6 @@ public class U2FAuthenticationMultifactorProviderBypassConfiguration {
         val u2f = casProperties.getAuthn().getMfa().getU2f();
         val props = u2f.getBypass();
         return new CredentialMultifactorAuthenticationProviderBypassEvaluator(props, u2f.getId());
-    }
-
-    @Bean
-    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-    @ConditionalOnMissingBean(name = "u2fRegisteredServiceMultifactorAuthenticationProviderBypass")
-    public MultifactorAuthenticationProviderBypassEvaluator u2fRegisteredServiceMultifactorAuthenticationProviderBypass(final CasConfigurationProperties casProperties) {
-        val u2f = casProperties.getAuthn().getMfa().getU2f();
-        return new RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator(u2f.getId());
     }
 
     @Bean

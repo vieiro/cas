@@ -10,7 +10,6 @@ import org.apereo.cas.authentication.bypass.HttpRequestMultifactorAuthentication
 import org.apereo.cas.authentication.bypass.MultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.NeverAllowMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.PrincipalMultifactorAuthenticationProviderBypassEvaluator;
-import org.apereo.cas.authentication.bypass.RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.authentication.bypass.RestMultifactorAuthenticationProviderBypassEvaluator;
 import org.apereo.cas.configuration.CasConfigurationProperties;
@@ -45,8 +44,6 @@ public class DuoSecurityMultifactorProviderBypassConfiguration {
     @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
     public ChainingMultifactorAuthenticationProviderBypassEvaluator duoSecurityBypassEvaluator(
         final ConfigurableApplicationContext applicationContext,
-        @Qualifier("duoSecurityRegisteredServiceMultifactorAuthenticationProviderBypass")
-        final MultifactorAuthenticationProviderBypassEvaluator duoSecurityRegisteredServiceMultifactorAuthenticationProviderBypass,
         @Qualifier("duoSecurityRegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator")
         final MultifactorAuthenticationProviderBypassEvaluator duoSecurityRegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator,
         @Qualifier("duoSecurityPrincipalMultifactorAuthenticationProviderBypass")
@@ -66,7 +63,6 @@ public class DuoSecurityMultifactorProviderBypassConfiguration {
             .when(DuoSecurityAuthenticationService.CONDITION.given(applicationContext.getEnvironment()))
             .supply(() -> {
                 val bypass = new DefaultChainingMultifactorAuthenticationBypassProvider();
-                bypass.addMultifactorAuthenticationProviderBypassEvaluator(duoSecurityRegisteredServiceMultifactorAuthenticationProviderBypass);
                 bypass.addMultifactorAuthenticationProviderBypassEvaluator(duoSecurityRegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator);
                 bypass.addMultifactorAuthenticationProviderBypassEvaluator(duoSecurityPrincipalMultifactorAuthenticationProviderBypass);
                 bypass.addMultifactorAuthenticationProviderBypassEvaluator(duoSecurityAuthenticationMultifactorAuthenticationProviderBypass);
@@ -186,32 +182,8 @@ public class DuoSecurityMultifactorProviderBypassConfiguration {
             .supply(() -> {
                 val duoProps = casProperties.getAuthn().getMfa().getDuo();
                 val bypass = new DefaultChainingMultifactorAuthenticationBypassProvider();
-                duoProps.stream()
-                    .filter(duo -> StringUtils.isNotBlank(duo.getBypass().getCredentialClassType()))
-                    .forEach(duo -> bypass.addMultifactorAuthenticationProviderBypassEvaluator(
-                        new RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator(duo.getId())));
-                if (bypass.isEmpty()) {
-                    return NeverAllowMultifactorAuthenticationProviderBypassEvaluator.getInstance();
-                }
-                return bypass;
-            })
-            .otherwiseProxy()
-            .get();
-    }
-
-    @Bean
-    @RefreshScope(proxyMode = ScopedProxyMode.DEFAULT)
-    @ConditionalOnMissingBean(name = "duoSecurityRegisteredServiceMultifactorAuthenticationProviderBypass")
-    public MultifactorAuthenticationProviderBypassEvaluator duoSecurityRegisteredServiceMultifactorAuthenticationProviderBypass(
-        final ConfigurableApplicationContext applicationContext,
-        final CasConfigurationProperties casProperties) {
-        return BeanSupplier.of(MultifactorAuthenticationProviderBypassEvaluator.class)
-            .when(DuoSecurityAuthenticationService.CONDITION.given(applicationContext.getEnvironment()))
-            .supply(() -> {
-                val duoProps = casProperties.getAuthn().getMfa().getDuo();
-                val bypass = new DefaultChainingMultifactorAuthenticationBypassProvider();
                 duoProps.forEach(duo -> bypass.addMultifactorAuthenticationProviderBypassEvaluator(
-                    new RegisteredServiceMultifactorAuthenticationProviderBypassEvaluator(duo.getId())));
+                        new RegisteredServicePrincipalAttributeMultifactorAuthenticationProviderBypassEvaluator(duo.getId())));
                 return bypass;
             })
             .otherwiseProxy()
